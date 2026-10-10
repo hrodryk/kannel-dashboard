@@ -395,9 +395,7 @@ async function testConnection(endpoint: Endpoint) {
                                         variant="secondary"
                                         class="bg-amber-500/15 text-amber-700 dark:text-amber-300"
                                     >
-                                        {{
-                                            ep.consecutive_failures
-                                        }}
+                                        {{ ep.consecutive_failures }}
                                         consecutive failures
                                     </Badge>
                                 </div>

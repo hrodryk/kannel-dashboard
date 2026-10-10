@@ -27,3 +27,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# TRAE workspace-specific files (contém caminhos absolutos, credenciais e estado local)
+/.trae/
+.mcp.json
+
+# Diretórios temporários usados para limpeza de histórico local
+/.filter-mirror.git/

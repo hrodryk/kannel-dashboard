@@ -111,8 +111,7 @@ const mainNavItems: NavItem[] = [
                                         {{ item.title }}
                                     </Link>
                                 </nav>
-                                <div class="flex flex-col space-y-4">
-                                </div>
+                                <div class="flex flex-col space-y-4"></div>
                             </div>
                         </SheetContent>
                     </Sheet>
@@ -172,8 +171,7 @@ const mainNavItems: NavItem[] = [
                             />
                         </Button>
 
-                        <div class="hidden space-x-1 lg:flex">
-                        </div>
+                        <div class="hidden space-x-1 lg:flex"></div>
                     </div>
 
                     <DropdownMenu>

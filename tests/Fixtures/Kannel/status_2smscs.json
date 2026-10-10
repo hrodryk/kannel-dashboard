@@ -1,47 +1,52 @@
 {
-  "gateway": {
-    "version": "1.4.5",
-    "status": "running",
-    "start_time": 1725450000,
-    "uptime": 86450,
-    "received": 120560,
-    "sent": 298340,
-    "inbound_queue": 127,
-    "outbound_queue": 534,
-    "dlr_queue": 42,
-    "failed": 342,
-    "store_used": 4512,
-    "box_id": "kannel-main-01",
-    "smscs": [
-      {
-        "name": "SMSC_A",
-        "id": "smpp_01",
-        "status": "connected",
-        "received": 50320,
-        "sent": 149200,
-        "failed": 98,
-        "queued": 210,
-        "mo_count": 50320,
-        "mt_count": 149200,
-        "latency_ms": 18,
-        "last_seen": 1725536450
-      },
-      {
-        "name": "SMSC_B",
-        "id": "smpp_02",
-        "status": "disconnected",
-        "received": 42110,
-        "sent": 98750,
-        "failed": 194,
-        "queued": 310,
-        "mo_count": 42110,
-        "mt_count": 98750,
-        "latency_ms": 0,
-        "last_seen": 1725536330
-      }
-    ],
-    "errors": [
-      {"code":"0x0000000B","smsc":"SMSC_B","count":120,"description":"ESME_RINVBNDSTS"}
-    ]
-  }
+    "gateway": {
+        "version": "1.4.5",
+        "status": "running",
+        "start_time": 1725450000,
+        "uptime": 86450,
+        "received": 120560,
+        "sent": 298340,
+        "inbound_queue": 127,
+        "outbound_queue": 534,
+        "dlr_queue": 42,
+        "failed": 342,
+        "store_used": 4512,
+        "box_id": "kannel-main-01",
+        "smscs": [
+            {
+                "name": "SMSC_A",
+                "id": "smpp_01",
+                "status": "connected",
+                "received": 50320,
+                "sent": 149200,
+                "failed": 98,
+                "queued": 210,
+                "mo_count": 50320,
+                "mt_count": 149200,
+                "latency_ms": 18,
+                "last_seen": 1725536450
+            },
+            {
+                "name": "SMSC_B",
+                "id": "smpp_02",
+                "status": "disconnected",
+                "received": 42110,
+                "sent": 98750,
+                "failed": 194,
+                "queued": 310,
+                "mo_count": 42110,
+                "mt_count": 98750,
+                "latency_ms": 0,
+                "last_seen": 1725536330
+            }
+        ],
+        "errors": [
+            {
+                "code": "0x0000000B",
+                "smsc": "SMSC_B",
+                "count": 120,
+                "description": "ESME_RINVBNDSTS"
+            }
+        ]
+    }
 }

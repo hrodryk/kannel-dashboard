@@ -1,95 +1,99 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: kannel-dashboard:latest
-    container_name: kannel-dashboard-app
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_URL=${APP_URL:-http://localhost:8080}
-      - APP_KEY=${APP_KEY:-base64:change-me-please-set-me}
-      - LOG_CHANNEL=stack
-      - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=${DB_DATABASE:-kannel}
-      - DB_USERNAME=${DB_USERNAME:-kannel}
-      - DB_PASSWORD=${DB_PASSWORD:-kannel_secret}
-      - CACHE_STORE=redis
-      - QUEUE_CONNECTION=redis
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - SESSION_DRIVER=database
-      - RUN_MIGRATIONS=1
-      - KANNEL_POLL_INTERVAL_SECONDS=${KANNEL_POLL_INTERVAL_SECONDS:-30}
-      - KANNEL_RETENTION_DAYS=${KANNEL_RETENTION_DAYS:-30}
-      - KANNEL_HTTP_TIMEOUT_SECONDS=${KANNEL_HTTP_TIMEOUT_SECONDS:-10}
-      - KANNEL_HTTP_MAX_RETRIES=${KANNEL_HTTP_MAX_RETRIES:-3}
-      - KANNEL_CONSECUTIVE_FAILURES_BEFORE_UNREACHABLE=${KANNEL_CONSECUTIVE_FAILURES_BEFORE_UNREACHABLE:-3}
-      - KANNEL_DEFAULT_QUEUE_WARNING_THRESHOLD=${KANNEL_DEFAULT_QUEUE_WARNING_THRESHOLD:-1000}
-      - KANNEL_THROUGHPUT_DROP_THRESHOLD_FRACTION=${KANNEL_THROUGHPUT_DROP_THRESHOLD_FRACTION:-0.5}
-      - KANNEL_DEFAULT_ALERT_COOLDOWN_MINUTES=${KANNEL_DEFAULT_ALERT_COOLDOWN_MINUTES:-15}
-      - KANNEL_CHANNELS_WEBHOOK_TIMEOUT_SECONDS=${KANNEL_CHANNELS_WEBHOOK_TIMEOUT_SECONDS:-10}
-      - MAIL_MAILER=${MAIL_MAILER:-log}
-      - MAIL_HOST=${MAIL_HOST:-}
-      - MAIL_PORT=${MAIL_PORT:-587}
-      - MAIL_USERNAME=${MAIL_USERNAME:-}
-      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
-      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
-      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-no-reply@example.test}
-    ports:
-      - "8080:8080"
-    volumes:
-      - storage_data:/var/www/html/storage
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/up || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: kannel-dashboard:latest
+        container_name: kannel-dashboard-app
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        environment:
+            - APP_ENV=production
+            - APP_DEBUG=false
+            - APP_URL=${APP_URL:-http://localhost:8080}
+            - APP_KEY=${APP_KEY:-base64:change-me-please-set-me}
+            - LOG_CHANNEL=stack
+            - DB_CONNECTION=pgsql
+            - DB_HOST=postgres
+            - DB_PORT=5432
+            - DB_DATABASE=${DB_DATABASE:-kannel}
+            - DB_USERNAME=${DB_USERNAME:-kannel}
+            - DB_PASSWORD=${DB_PASSWORD:-kannel_secret}
+            - CACHE_STORE=redis
+            - QUEUE_CONNECTION=redis
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - SESSION_DRIVER=database
+            - RUN_MIGRATIONS=1
+            - KANNEL_POLL_INTERVAL_SECONDS=${KANNEL_POLL_INTERVAL_SECONDS:-30}
+            - KANNEL_RETENTION_DAYS=${KANNEL_RETENTION_DAYS:-30}
+            - KANNEL_HTTP_TIMEOUT_SECONDS=${KANNEL_HTTP_TIMEOUT_SECONDS:-10}
+            - KANNEL_HTTP_MAX_RETRIES=${KANNEL_HTTP_MAX_RETRIES:-3}
+            - KANNEL_CONSECUTIVE_FAILURES_BEFORE_UNREACHABLE=${KANNEL_CONSECUTIVE_FAILURES_BEFORE_UNREACHABLE:-3}
+            - KANNEL_DEFAULT_QUEUE_WARNING_THRESHOLD=${KANNEL_DEFAULT_QUEUE_WARNING_THRESHOLD:-1000}
+            - KANNEL_THROUGHPUT_DROP_THRESHOLD_FRACTION=${KANNEL_THROUGHPUT_DROP_THRESHOLD_FRACTION:-0.5}
+            - KANNEL_DEFAULT_ALERT_COOLDOWN_MINUTES=${KANNEL_DEFAULT_ALERT_COOLDOWN_MINUTES:-15}
+            - KANNEL_CHANNELS_WEBHOOK_TIMEOUT_SECONDS=${KANNEL_CHANNELS_WEBHOOK_TIMEOUT_SECONDS:-10}
+            - MAIL_MAILER=${MAIL_MAILER:-log}
+            - MAIL_HOST=${MAIL_HOST:-}
+            - MAIL_PORT=${MAIL_PORT:-587}
+            - MAIL_USERNAME=${MAIL_USERNAME:-}
+            - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+            - MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
+            - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-no-reply@example.test}
+        ports:
+            - '8080:8080'
+        volumes:
+            - storage_data:/var/www/html/storage
+        healthcheck:
+            test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/up || exit 1']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 40s
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: kannel-dashboard-postgres
-    restart: unless-stopped
-    shm_size: 256mb
-    environment:
-      POSTGRES_DB: ${DB_DATABASE:-kannel}
-      POSTGRES_USER: ${DB_USERNAME:-kannel}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-kannel_secret}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-kannel} -d ${DB_DATABASE:-kannel}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    postgres:
+        image: postgres:16-alpine
+        container_name: kannel-dashboard-postgres
+        restart: unless-stopped
+        shm_size: 256mb
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-kannel}
+            POSTGRES_USER: ${DB_USERNAME:-kannel}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-kannel_secret}
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'pg_isready -U ${DB_USERNAME:-kannel} -d ${DB_DATABASE:-kannel}',
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: kannel-dashboard-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    redis:
+        image: redis:7-alpine
+        container_name: kannel-dashboard-redis
+        restart: unless-stopped
+        command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+        volumes:
+            - redis_data:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  storage_data:
-    driver: local
+    postgres_data:
+        driver: local
+    redis_data:
+        driver: local
+    storage_data:
+        driver: local

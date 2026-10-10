@@ -135,6 +135,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'kannel' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/kannel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'max_files' => 14,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

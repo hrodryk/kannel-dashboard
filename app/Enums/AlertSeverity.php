@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Enums;
+
+enum AlertSeverity: string
+{
+    case Info = 'info';
+    case Warning = 'warning';
+    case Critical = 'critical';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Info => 'Info',
+            self::Warning => 'Warning',
+            self::Critical => 'Critical',
+        };
+    }
+
+    public function order(): int
+    {
+        return match ($this) {
+            self::Info => 0,
+            self::Warning => 1,
+            self::Critical => 2,
+        };
+    }
+}

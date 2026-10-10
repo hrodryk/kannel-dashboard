@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\KannelDashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Welcome')->name('home');
-
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    Route::get('/', [KannelDashboardController::class, 'index'])->name('home');
+    Route::get('dashboard', [KannelDashboardController::class, 'index'])->name('dashboard');
 });
 
 require __DIR__.'/settings.php';
+require __DIR__.'/kannel.php';

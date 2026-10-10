@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gateway>
+  <version>1.4.5</version>
+  <status>running</status>
+  <start_time>1725450000</start_time>
+  <uptime>3600</uptime>
+  <received>10</received>
+  <sent>20</sent>
+  <inbound_queue>5</inbound_queue>
+  <outbound_queue>10</outbound_queue>
+  <dlr_queue>2</dlr_queue>
+  <failed>0</failed>
+  <store_used>20</store_used>
+  <box_id>kannel-single-01</box_id>
+  <smscs count="1">
+    <smsc>
+      <name>SMSC_PRIMARY</name>
+      <id>smpp_primary</id>
+      <status>connected</status>
+      <received>10</received>
+      <sent>20</sent>
+      <failed>0</failed>
+      <queued>15</queued>
+      <mo_count>10</mo_count>
+      <mt_count>20</mt_count>
+      <latency_ms>22</latency_ms>
+      <last_seen>1725536400</last_seen>
+    </smsc>
+  </smscs>
+  <errors/>
+</gateway>

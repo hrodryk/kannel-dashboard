@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gateway>
+  <version>1.4.5</version>
+  <status>running</status>
+  <start_time>1725450000</start_time>
+  <uptime>86450</uptime>
+  <received>120560</received>
+  <sent>298340</sent>
+  <inbound_queue>127</inbound_queue>
+  <outbound_queue>534</outbound_queue>
+  <dlr_queue>42</dlr_queue>
+  <failed>342</failed>
+  <store_used>4512</store_used>
+  <box_id>kannel-main-01</box_id>
+  <smscs count="3">
+    <smsc>
+      <name>SMSC_A</name>
+      <id>smpp_01</id>
+      <status>connected</status>
+      <received>50320</received>
+      <sent>149200</sent>
+      <failed>98</failed>
+      <queued>210</queued>
+      <mo_count>50320</mo_count>
+      <mt_count>149200</mt_count>
+      <latency_ms>18</latency_ms>
+      <last_seen>1725536450</last_seen>
+    </smsc>
+    <smsc>
+      <name>SMSC_B</name>
+      <id>smpp_02</id>
+      <status>disconnected</status>
+      <received>42110</received>
+      <sent>98750</sent>
+      <failed>194</failed>
+      <queued>310</queued>
+      <mo_count>42110</mo_count>
+      <mt_count>98750</mt_count>
+      <latency_ms>0</latency_ms>
+      <last_seen>1725536330</last_seen>
+    </smsc>
+    <smsc>
+      <name>SMSC_C</name>
+      <id>smpp_03</id>
+      <status>binding</status>
+      <received>28130</received>
+      <sent>50390</sent>
+      <failed>50</failed>
+      <queued>14</queued>
+      <mo_count>28130</mo_count>
+      <mt_count>50390</mt_count>
+      <latency_ms>240</latency_ms>
+      <last_seen>1725536448</last_seen>
+    </smsc>
+  </smscs>
+  <errors>
+    <error code="0x0000000B" smsc="SMSC_B" count="120" description="ESME_RINVBNDSTS - Invalid bind status"/>
+    <error code="0x00000014" smsc="SMSC_C" count="35" description="ESME_RTHROTTLED - Message throttled"/>
+    <error code="0x00000008" smsc="SMSC_A" count="18" description="ESME_RSYSERR - System error"/>
+  </errors>
+</gateway>

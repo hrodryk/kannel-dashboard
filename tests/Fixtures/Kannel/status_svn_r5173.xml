@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<gateway>
+<version>Kannel bearerbox version `svn-r5173''.</version>
+<status>running, uptime 0d 0h 14m 58s</status>
+<wdp>
+<received><total>0</total><queued>0</queued></received>
+<sent><total>0</total><queued>0</queued></sent>
+</wdp>
+<sms>
+<received><total>0</total><queued>0</queued></received>
+<sent><total>0</total><queued>1</queued></sent>
+<storesize>1</storesize>
+<inbound>0.00,0.00,0.00</inbound>
+<outbound>0.00,0.00,0.00</outbound>
+</sms>
+<dlr>
+<received><total>0</total></received>
+<sent><total>0</total></sent>
+<queued>0</queued>
+</dlr>
+<smscs><count>1</count>
+<smsc>
+<name>FAKE:12345</name>
+<admin-id>unknown</admin-id>
+<status>connecting</status>
+<failed>0</failed>
+<queued>0</queued>
+<sms>
+<received>0</received>
+<sent>0</sent>
+</sms>
+</smsc>
+</smscs>
+</gateway>

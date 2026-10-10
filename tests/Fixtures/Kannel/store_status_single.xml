@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<gateway>
+	<message>
+	<id>b8434592-d31f-4383-a88e-ff402cb18c04</id>
+	<type>MT-PUSH</type>
+	<time>2026-09-05 14:40:58</time>
+	<sender>fake</sender>
+	<receiver>0123456</receiver>
+	<smsc-id></smsc-id>
+	<box-id></box-id>
+	<flags>-1:0:-1:-1:-1</flags>
+	<udh-data></udh-data>
+	<msg-data>Hello+world</msg-data>
+	</message>
+</gateway>

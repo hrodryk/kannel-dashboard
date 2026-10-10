@@ -45,14 +45,17 @@ class KannelAlertRule extends Model
         ];
     }
 
-    /**
-     * @param  array<int, array<string, mixed>>  $channels
-     */
-    public function setChannelsAttribute(array $channels): void
+    public function setChannelsAttribute(mixed $channels): void
     {
+        if (! is_array($channels)) {
+            $this->attributes['channels'] = '[]';
+
+            return;
+        }
+
         $normalized = [];
 
-        foreach ($channels as $idx => $channel) {
+        foreach ($channels as $channel) {
             if (! is_array($channel)) {
                 continue;
             }
@@ -96,10 +99,9 @@ class KannelAlertRule extends Model
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $channels
      * @return array<int, array<string, mixed>>
      */
-    public function getChannelsAttribute($channels): array
+    public function getChannelsAttribute(mixed $channels): array
     {
         if (is_string($channels)) {
             try {
@@ -158,13 +160,16 @@ class KannelAlertRule extends Model
     }
 
     /**
-     * @return array<int, array{type:string, to?:string, webhook_url?:string, emails?:list<string>}>
+     * @return array<int, mixed>
      */
     public function channelsPlain(): array
     {
         return $this->channels;
     }
 
+    /**
+     * @return BelongsTo<KannelEndpoint, $this>
+     */
     public function endpoint(): BelongsTo
     {
         return $this->belongsTo(KannelEndpoint::class, 'endpoint_id');

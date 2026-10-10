@@ -56,11 +56,22 @@ declare module '@/types/kannel' {
         updated_at: string | null;
     }
 
+    /** Known alert states (plus arbitrary strings). */
+    export type AlertState = 'firing' | 'resolved' | (string & {});
+
+    /** Known alert severities (plus arbitrary strings or null). */
+    export type AlertSeverity =
+        | 'critical'
+        | 'warning'
+        | 'info'
+        | (string & {})
+        | null;
+
     export interface RecentAlert {
         id: number;
         fingerprint: string;
-        state: 'firing' | 'resolved' | string;
-        severity: 'critical' | 'warning' | 'info' | string | null;
+        state: AlertState;
+        severity: AlertSeverity;
         title: string;
         message: string;
         endpoint_id: number | null;

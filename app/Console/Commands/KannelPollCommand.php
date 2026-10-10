@@ -9,6 +9,7 @@ use App\Models\KannelMetricSnapshot;
 use App\Models\KannelSmscMetric;
 use App\Services\Kannel\Alerting\AlertManager;
 use App\Services\Kannel\MetricsCollector;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -203,7 +204,7 @@ class KannelPollCommand extends Command
         return $fetch->success;
     }
 
-    private function updateEndpointHealth(KannelEndpoint $endpoint, bool $success, ?string $errorMessage, Carbon $polledAt): void
+    private function updateEndpointHealth(KannelEndpoint $endpoint, bool $success, ?string $errorMessage, CarbonInterface $polledAt): void
     {
         if ($success) {
             $endpoint->consecutive_failures = 0;

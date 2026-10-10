@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use App\Enums\AlertSeverity;
+use Carbon\CarbonInterface;
 use Database\Factories\KannelAlertEventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -21,9 +21,9 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property string $message
  * @property array<string, mixed>|null $payload
- * @property Carbon $fired_at
- * @property Carbon|null $resolved_at
- * @property Carbon|null $last_notified_at
+ * @property CarbonInterface $fired_at
+ * @property CarbonInterface|null $resolved_at
+ * @property CarbonInterface|null $last_notified_at
  * @property int $notify_attempts
  */
 #[Fillable([

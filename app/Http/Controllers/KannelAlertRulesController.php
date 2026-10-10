@@ -80,7 +80,7 @@ class KannelAlertRulesController extends Controller
     }
 
     /**
-     * @return array<string, list<ValidationRule|array<mixed>|string>>
+     * @return array<string, list<Rule|array<mixed>|string>>
      */
     private function baseValidationRules(): array
     {
@@ -159,9 +159,9 @@ class KannelAlertRulesController extends Controller
     /**
      * Replace masked secret placeholders ('***') with original values from $existing.
      *
-     * @param  array<int, array<string, mixed>>  $incoming
-     * @param  array<int, array<string, mixed>>  $existing
-     * @return array<int, array<string, mixed>>
+     * @param  array<int, mixed>  $incoming
+     * @param  array<int, mixed>  $existing
+     * @return array<int, mixed>
      */
     private function maskSensitiveChannelClears(array $incoming, array $existing): array
     {

@@ -137,7 +137,7 @@ class XmlStatusParser implements KannelMetricsParser
             storeUsed: $this->int($xml, 'store_used'),
             bufferedMessages: $this->int($xml, 'buffered') ?: $this->int($xml, 'messages_buffered') ?: 0,
             errors: $this->parseErrors($xml),
-            boxId: $this->string($xml, 'box_id') ?: $this->string($xml->boxes?->box ?? null, 'id'),
+            boxId: $this->string($xml, 'box_id') ?: $this->string($xml->boxes->box ?? null, 'id'),
             collectedAt: new DateTimeImmutable,
         );
 

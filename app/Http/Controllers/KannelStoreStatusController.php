@@ -46,9 +46,9 @@ class KannelStoreStatusController extends Controller
             $fetch = $result['fetch'];
             $fetchStatus = $fetch->status;
             $fetchDuration = $fetch->durationMs;
-            $fetchError = $fetch->errorMessage;
-            if (! $fetch->success) {
-                $fetchError = trim(sprintf('HTTP %s · %s (%s)', (string) ($fetch->status ?? 0), $fetchError ?? 'Falha ao consultar store-status.xml', $usedUrl));
+            $fetchError = $fetch->errorMessage ?? null;
+            if ($fetch->success === false) {
+                $fetchError = trim(sprintf('HTTP %s · %s (%s)', (string) $fetch->status, $fetchError ?? 'Falha ao consultar store-status.xml', $usedUrl));
             }
             $messages = $this->filterMessages(
                 $messages,
@@ -68,7 +68,7 @@ class KannelStoreStatusController extends Controller
             'endpoints' => $endpoints->map(fn (KannelEndpoint $e): array => [
                 'id' => $e->id,
                 'name' => $e->name,
-                'status' => $e->status?->value,
+                'status' => $e->status instanceof \BackedEnum ? $e->status->value : (is_string($e->status) ? $e->status : null),
                 'enabled' => (bool) $e->enabled,
                 'url' => $e->admin_url,
             ])->all(),

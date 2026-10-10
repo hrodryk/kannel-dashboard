@@ -146,8 +146,6 @@ function reloadSilent() {
         onSuccess: () => {
             lastRefreshed.value = new Date();
         },
-        preserveScroll: true,
-        preserveState: true,
     });
 }
 
@@ -222,7 +220,7 @@ function formatTime(iso: string | null): string {
                                     fetch.ok && selected_endpoint_id != null,
                                 )
                             "
-                            variant="muted"
+                            variant="secondary"
                         >
                             {{
                                 fetch.ok && selected_endpoint_id != null
@@ -233,8 +231,8 @@ function formatTime(iso: string | null): string {
                             }}
                         </Badge>
                         <Button
-                            :variant="autoRefresh ? 'primary' : 'ghost'"
-                            :size="'xs'"
+                            :variant="autoRefresh ? 'default' : 'ghost'"
+                            size="sm"
                             type="button"
                             @click="toggleAuto()"
                         >
@@ -242,7 +240,7 @@ function formatTime(iso: string | null): string {
                         </Button>
                         <Button
                             variant="secondary"
-                            size="xs"
+                            size="sm"
                             type="button"
                             :disabled="selected_endpoint_id == null"
                             @click="reloadSilent()"
@@ -321,7 +319,7 @@ function formatTime(iso: string | null): string {
                         <Button
                             type="button"
                             variant="ghost"
-                            size="xs"
+                            size="sm"
                             @click="resetFilters()"
                         >
                             Limpar
@@ -435,7 +433,7 @@ function formatTime(iso: string | null): string {
                                 Resposta bruta (preview — parser retornou 0
                                 mensagens)
                             </div>
-                            <Badge variant="outline" size="xs"
+                            <Badge variant="outline"
                                 >{{ fetch.status }} bytes:
                                 {{ fetch.response_preview.length }}</Badge
                             >
@@ -475,7 +473,7 @@ function formatTime(iso: string | null): string {
                                 <td class="px-3 py-2">
                                     <Button
                                         variant="ghost"
-                                        size="xs"
+                                        size="icon-sm"
                                         type="button"
                                         @click="toggleExpand(m.id)"
                                         class="font-mono"
@@ -491,8 +489,7 @@ function formatTime(iso: string | null): string {
                                 <td class="px-3 py-2">
                                     <Badge
                                         :class="typeBadgeClass(m.type)"
-                                        variant="muted"
-                                        size="sm"
+                                        variant="secondary"
                                     >
                                         {{ m.type }}
                                     </Badge>

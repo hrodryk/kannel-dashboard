@@ -139,18 +139,33 @@ class AlertManager
 
     private function dispatchNotifications(KannelAlertRule $rule, KannelAlertEvent $event, AlertEvaluationResult $result): void
     {
+        /** @var list<mixed> $channels */
         $channels = $rule->channelsPlain();
 
         foreach ($channels as $channel) {
-            $type = $channel['type'] ?? 'mail';
+            if (! is_array($channel)) {
+                continue;
+            }
+            /** @var mixed $typeRaw */
+            $typeRaw = $channel['type'] ?? 'mail';
+            $type = is_string($typeRaw) ? $typeRaw : 'mail';
             $notification = new KannelAlertNotification($rule, $event, $result);
 
             switch ($type) {
                 case AlertChannelType::Mail->value:
-                    $emails = $channel['emails'] ?? (isset($channel['to']) ? [$channel['to']] : []);
+                    $emails = isset($channel['emails']) && is_array($channel['emails'])
+                        ? $channel['emails']
+                        : (isset($channel['to']) ? [(string) $channel['to']] : []);
                     if ($emails !== []) {
                         collect($emails)
-                            ->filter(fn ($email): bool => is_string($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->filter(static function (mixed $email): bool {
+                                if (! is_string($email)) {
+                                    return false;
+                                }
+                                $filtered = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+                                return $filtered !== false && $filtered !== null;
+                            })
                             ->each(function (string $email) use ($notification): void {
                                 Notification::route('mail', $email)->notify($notification);
                             });
@@ -159,24 +174,38 @@ class AlertManager
                     break;
 
                 case AlertChannelType::Slack->value:
-                    $url = $channel['webhook_url'] ?? null;
-                    if (is_string($url) && $url !== '') {
-                        Notification::route('slack', $url)->notify($notification);
+                    $webhookUrl = isset($channel['webhook_url']) && is_string($channel['webhook_url'])
+                        ? $channel['webhook_url']
+                        : null;
+                    if ($webhookUrl !== null && $webhookUrl !== '') {
+                        Notification::route(WebhookChannel::class, [
+                            'url' => $webhookUrl,
+                            'method' => 'POST',
+                        ])->notify($notification);
                     }
 
                     break;
 
                 case AlertChannelType::Webhook->value:
-                    $url = $channel['url'] ?? null;
-                    if (! is_string($url) || $url === '') {
+                    $webUrl = isset($channel['url']) && is_string($channel['url'])
+                        ? $channel['url']
+                        : null;
+                    if ($webUrl === null || $webUrl === '') {
                         break;
                     }
 
+                    $headersRaw = $channel['headers'] ?? [];
+                    $headers = is_array($headersRaw) ? $headersRaw : [];
+                    $methodRaw = $channel['method'] ?? 'POST';
+                    $method = is_string($methodRaw) ? $methodRaw : 'POST';
+                    $secretRaw = $channel['secret'] ?? null;
+                    $secret = is_string($secretRaw) ? $secretRaw : null;
+
                     Notification::route(WebhookChannel::class, [
-                        'url' => $url,
-                        'secret' => $channel['secret'] ?? null,
-                        'headers' => $channel['headers'] ?? [],
-                        'method' => $channel['method'] ?? 'POST',
+                        'url' => $webUrl,
+                        'secret' => $secret,
+                        'headers' => $headers,
+                        'method' => $method,
                     ])->notify($notification);
 
                     break;

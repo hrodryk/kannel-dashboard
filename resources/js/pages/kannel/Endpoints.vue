@@ -93,28 +93,44 @@ function statusClass(s: string) {
     }
 }
 
-function submitCreate() {
+interface EndpointEditForm {
+    _method: 'PUT';
+    name?: string;
+    admin_url?: string;
+    admin_username?: string;
+    admin_password?: string;
+    admin_api_key_header?: string;
+    admin_api_key_value?: string;
+    poll_interval_seconds?: number | null;
+    timeout_seconds?: number | null;
+    enabled?: boolean;
+}
+
+function submitCreate(): void {
     createForm.post(endpointsRoutes.store.url(), {
         preserveScroll: true,
     });
 }
 
-function submitEdit(endpoint: Endpoint, values: Record<string, unknown>) {
-    const payload: Record<string, unknown> = {
+function submitEdit(
+    endpoint: Endpoint,
+    values: Partial<EndpointEditForm> = {},
+): void {
+    const payload: EndpointEditForm = {
         _method: 'PUT',
         ...values,
     };
-    const form = useForm(payload);
+    const form = useForm<EndpointEditForm>(payload);
     form.post(endpointsRoutes.update.form(endpoint).action, {
         preserveScroll: true,
     });
 }
 
-function removeEndpoint(endpoint: Endpoint) {
+function removeEndpoint(endpoint: Endpoint): void {
     if (!confirm(`Delete endpoint "${endpoint.name}"?`)) {
         return;
     }
-    const form = useForm({});
+    const form = useForm({ id: endpoint.id });
     form.post(endpointsRoutes.destroy.form(endpoint).action, {
         preserveScroll: true,
     });
@@ -162,8 +178,6 @@ async function testConnection(endpoint: Endpoint) {
             };
             router.reload({
                 only: ['endpoints'],
-                preserveScroll: true,
-                preserveState: true,
             });
             return;
         }
@@ -174,8 +188,6 @@ async function testConnection(endpoint: Endpoint) {
         };
         router.reload({
             only: ['endpoints'],
-            preserveScroll: true,
-            preserveState: true,
         });
     } catch (err) {
         testStatus[endpoint.id] = {
@@ -185,8 +197,6 @@ async function testConnection(endpoint: Endpoint) {
         };
         router.reload({
             only: ['endpoints'],
-            preserveScroll: true,
-            preserveState: true,
         });
     }
 }

@@ -10,10 +10,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\SlackAttachment;
-use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Str;
 
 class KannelAlertNotification extends Notification implements ShouldQueue
 {
@@ -62,31 +59,6 @@ class KannelAlertNotification extends Notification implements ShouldQueue
             ->line('Triggered at: '.$this->event->fired_at->toDateTimeString());
     }
 
-    public function toSlack(object $notifiable): SlackMessage
-    {
-        $color = match ($this->result->severity->value) {
-            'critical' => 'danger',
-            'warning' => 'warning',
-            default => 'good',
-        };
-
-        return (new SlackMessage)
-            ->from(config('app.name'), ':rocket:')
-            ->error($color === 'danger')
-            ->warning($color === 'warning')
-            ->success($color === 'good')
-            ->content(sprintf('*Kannel %s Alert:* %s', Str::upper($this->result->severity->value), $this->event->title))
-            ->attachment(function (SlackAttachment $attachment): void {
-                $attachment->content($this->event->message);
-                $attachment->fields(array_filter([
-                    'Rule' => $this->rule->name,
-                    'Endpoint ID' => (string) ($this->event->endpoint_id ?? '(none)'),
-                    'SMSC' => $this->event->smsc_name,
-                    'Fired at' => $this->event->fired_at?->toDateTimeString() ?? now()->toDateTimeString(),
-                ], fn ($v): bool => $v !== null));
-            });
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -108,7 +80,7 @@ class KannelAlertNotification extends Notification implements ShouldQueue
             'title' => $this->event->title,
             'message' => $this->event->message,
             'context' => $this->result->context,
-            'fired_at' => $this->event->fired_at?->toIso8601String() ?? now()->toIso8601String(),
+            'fired_at' => $this->event->fired_at->toIso8601String(),
             'notify_attempts' => $this->event->notify_attempts,
             'source_app' => config('app.name'),
             'source_url' => config('app.url'),

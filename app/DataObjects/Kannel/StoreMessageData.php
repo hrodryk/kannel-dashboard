@@ -30,7 +30,7 @@ final readonly class StoreMessageData
         if ($hasPlus && $decoded === $this->msgData) {
             $decoded = strtr($this->msgData, ['+' => ' ']);
         }
-        if ($decoded === '' && $this->msgData !== '') {
+        if ($decoded === '') {
             return $this->msgData;
         }
 

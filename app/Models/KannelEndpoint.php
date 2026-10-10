@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EndpointStatus;
+use Carbon\CarbonInterface;
 use Database\Factories\KannelEndpointFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
 /**
@@ -28,12 +28,12 @@ use Illuminate\Support\Facades\Crypt;
  * @property int $consecutive_failures
  * @property EndpointStatus|string $status
  * @property bool $enabled
- * @property Carbon|null $last_polled_at
- * @property Carbon|null $last_success_at
- * @property Carbon|null $last_ok_at
+ * @property CarbonInterface|null $last_polled_at
+ * @property CarbonInterface|null $last_success_at
+ * @property CarbonInterface|null $last_ok_at
  * @property string|null $last_error
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonInterface|null $created_at
+ * @property CarbonInterface|null $updated_at
  */
 #[Fillable([
     'name', 'url', 'admin_url', 'admin_username', 'admin_user', 'admin_password', 'admin_api_key_header',
@@ -59,6 +59,9 @@ class KannelEndpoint extends Model
         ];
     }
 
+    /**
+     * @return Attribute<?string, ?string>
+     */
     protected function adminPassword(): Attribute
     {
         return Attribute::make(
@@ -83,6 +86,9 @@ class KannelEndpoint extends Model
         );
     }
 
+    /**
+     * @return Attribute<?string, ?string>
+     */
     protected function adminApiKeyValue(): Attribute
     {
         return Attribute::make(
@@ -107,6 +113,9 @@ class KannelEndpoint extends Model
         );
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     protected function adminUrl(): Attribute
     {
         return Attribute::make(
@@ -117,6 +126,9 @@ class KannelEndpoint extends Model
         );
     }
 
+    /**
+     * @return Attribute<?string, ?string>
+     */
     protected function adminUsername(): Attribute
     {
         return Attribute::make(
@@ -198,7 +210,7 @@ class KannelEndpoint extends Model
         return rtrim($this->url, '/').'/'.ltrim($path, '/');
     }
 
-    public function markHealthy(?Carbon $at = null): void
+    public function markHealthy(?CarbonInterface $at = null): void
     {
         $at ??= now();
         $this->consecutive_failures = 0;
@@ -214,7 +226,7 @@ class KannelEndpoint extends Model
         }
     }
 
-    public function markUnhealthy(string $errorMessage, ?Carbon $at = null): void
+    public function markUnhealthy(string $errorMessage, ?CarbonInterface $at = null): void
     {
         $at ??= now();
         $threshold = (int) config('kannel.consecutive_failures_before_unreachable', 3);

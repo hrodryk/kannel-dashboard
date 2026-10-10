@@ -70,7 +70,7 @@ class KannelDashboardController extends Controller
             'endpoints' => $endpoints->map(fn (KannelEndpoint $e): array => [
                 'id' => $e->id,
                 'name' => $e->name,
-                'status' => $e->status?->value ?? EndpointStatus::Disabled->value,
+                'status' => $e->status instanceof EndpointStatus ? $e->status->value : (is_string($e->status) ? $e->status : EndpointStatus::Disabled->value),
                 'enabled' => (bool) $e->enabled,
                 'admin_url' => $e->admin_url,
                 'last_polled_at' => $live[$e->id]['fetched_at'] ?? $e->last_polled_at,
@@ -88,7 +88,7 @@ class KannelDashboardController extends Controller
     }
 
     /**
-     * @param  list<KannelEndpoint>  $endpoints
+     * @param  array<int, KannelEndpoint>  $endpoints
      * @return array<int, array{
      *     endpoint: KannelEndpoint,
      *     success: bool,
@@ -149,7 +149,7 @@ class KannelDashboardController extends Controller
     }
 
     /**
-     * @return array{prev:null|array{t:int,mo:int,mt:int,ok:bool}, next:array{t:int,mo:int,mt:int,ok:bool}}
+     * @return array{t:int, mo:int, mt:int, ok:bool}|null
      */
     private function appendEndpointSample(KannelEndpoint $endpoint, KannelSnapshotData $snapshot, bool $success, Carbon $now): ?array
     {
@@ -160,18 +160,18 @@ class KannelDashboardController extends Controller
             $samples = [];
         }
 
-        $cutoff = $now->timestamp - self::SAMPLE_WINDOW_SECONDS;
-        $samples = array_values(array_filter($samples, static fn (array $s): bool => $s['t'] >= $cutoff));
+        $cutoff = (int) $now->timestamp - self::SAMPLE_WINDOW_SECONDS;
+        $samples = array_values(array_filter($samples, static fn (array $s): bool => (int) $s['t'] >= $cutoff));
 
         $newSample = [
-            't' => $now->timestamp,
+            't' => (int) $now->timestamp,
             'mo' => $snapshot->moTotal,
             'mt' => $snapshot->mtTotal,
             'ok' => $success,
         ];
 
-        $prev = end($samples) ?: null;
-        if ($prev === false) {
+        $prev = end($samples);
+        if ($prev === false || $prev === []) {
             $prev = null;
         }
 
@@ -182,7 +182,7 @@ class KannelDashboardController extends Controller
 
         Cache::put($key, $samples, now()->addHours(2));
 
-        return $prev;
+        return is_array($prev) ? $prev : null;
     }
 
     /**
@@ -194,7 +194,7 @@ class KannelDashboardController extends Controller
             return ['mo_rate' => 0.0, 'mt_rate' => 0.0];
         }
 
-        $dt = max(1, $now->timestamp - (int) $prevSample['t']);
+        $dt = max(1, (int) $now->timestamp - (int) $prevSample['t']);
         if ($dt > 600) {
             return ['mo_rate' => 0.0, 'mt_rate' => 0.0];
         }
@@ -210,7 +210,7 @@ class KannelDashboardController extends Controller
 
     /**
      * @param  array<int, mixed>  $live
-     * @param  list<KannelEndpoint>  $endpoints
+     * @param  array<int, KannelEndpoint>  $endpoints
      * @return array<string, mixed>
      */
     private function computeKpis(array $live, array $endpoints): array
@@ -372,7 +372,7 @@ class KannelDashboardController extends Controller
         $rangeHours = max(1, min(24 * 7, $rangeHours));
         $windowSeconds = $rangeHours * 3600;
         $now = Carbon::now();
-        $cutoff = $now->timestamp - $windowSeconds;
+        $cutoff = (int) $now->timestamp - $windowSeconds;
 
         $buckets = [];
         if ($rangeHours <= 1) {
@@ -391,7 +391,7 @@ class KannelDashboardController extends Controller
             }
             $samples = array_values(array_filter(
                 $samples,
-                static fn (array $s): bool => is_array($s) && isset($s['t']) && (int) $s['t'] >= $cutoff,
+                static fn (mixed $s): bool => is_array($s) && isset($s['t']) && (int) $s['t'] >= $cutoff,
             ));
 
             for ($i = 1; $i < count($samples); $i++) {
@@ -489,8 +489,8 @@ class KannelDashboardController extends Controller
     }
 
     /**
-     * @param  list<int>  $endpointIds
-     * @return list<array<string, mixed>>
+     * @param  array<int, mixed>  $endpointIds
+     * @return array<int, array<string, mixed>>
      */
     private function buildRecentAlerts(array $endpointIds, int $limit = 50): array
     {
@@ -500,22 +500,30 @@ class KannelDashboardController extends Controller
             ->limit($limit)
             ->with('rule:id,name,type,severity,enabled')
             ->get()
-            ->map(fn (KannelAlertEvent $event): array => [
-                'id' => $event->id,
-                'fingerprint' => $event->fingerprint,
-                'state' => $event->state,
-                'severity' => $event->severity?->value,
-                'title' => $event->title,
-                'message' => $event->message,
-                'endpoint_id' => $event->endpoint_id,
-                'smsc_name' => $event->smsc_name,
-                'fired_at' => $event->fired_at,
-                'resolved_at' => $event->resolved_at,
-                'last_notified_at' => $event->last_notified_at,
-                'notify_attempts' => (int) $event->notify_attempts,
-                'rule_name' => $event->rule?->name,
-                'rule_type' => $event->rule?->type instanceof AlertRuleType ? $event->rule->type->value : (string) $event->rule->type,
-            ])
+            ->map(function (KannelAlertEvent $event): array {
+                $rule = $event->rule;
+                $ruleType = $rule?->type;
+                $ruleTypeValue = $ruleType instanceof AlertRuleType
+                    ? $ruleType->value
+                    : (is_string($ruleType) ? $ruleType : '');
+
+                return [
+                    'id' => $event->id,
+                    'fingerprint' => $event->fingerprint,
+                    'state' => $event->state,
+                    'severity' => $event->severity instanceof \BackedEnum ? $event->severity->value : (is_string($event->severity) ? $event->severity : null),
+                    'title' => $event->title,
+                    'message' => $event->message,
+                    'endpoint_id' => $event->endpoint_id,
+                    'smsc_name' => $event->smsc_name,
+                    'fired_at' => $event->fired_at,
+                    'resolved_at' => $event->resolved_at,
+                    'last_notified_at' => $event->last_notified_at,
+                    'notify_attempts' => (int) $event->notify_attempts,
+                    'rule_name' => $rule?->name,
+                    'rule_type' => $ruleTypeValue,
+                ];
+            })
             ->all();
     }
 }

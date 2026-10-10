@@ -35,15 +35,16 @@ class SmscDownRule implements KannelAlertRuleStrategy
                 continue;
             }
 
+            $stateValue = $smsc->smsc_state instanceof SMSCState ? $smsc->smsc_state->value : (string) $smsc->smsc_state;
             $results[] = new AlertEvaluationResult(
                 triggered: true,
                 ruleType: AlertRuleType::SmscDown,
                 severity: $rule->severity instanceof AlertSeverity ? $rule->severity : AlertSeverity::from((string) $rule->severity),
                 fingerprintKey: 'smsc:'.$smsc->smsc_name,
-                message: sprintf('SMSC %s is in state %s on endpoint %d.', $smsc->smsc_name, $smsc->smsc_state?->value ?? 'unknown', $smsc->endpoint_id),
+                message: sprintf('SMSC %s is in state %s on endpoint %d.', $smsc->smsc_name, $stateValue, $smsc->endpoint_id),
                 endpointId: (int) $smsc->endpoint_id,
                 smscName: $smsc->smsc_name,
-                context: ['state' => $smsc->smsc_state?->value, 'latency_ms' => $smsc->latency_ms],
+                context: ['state' => $stateValue, 'latency_ms' => $smsc->latency_ms],
             );
         }
 

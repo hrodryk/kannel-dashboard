@@ -38,6 +38,24 @@ interface ChannelDef {
     headerValue?: string;
 }
 
+interface AlertRuleThreshold {
+    outbound_queue?: number;
+    fraction?: number;
+    consecutive_failures?: number;
+}
+
+interface AlertRuleCreateForm {
+    name: string;
+    endpoint_id: number | null;
+    type: string;
+    severity: string;
+    threshold: AlertRuleThreshold;
+    channels: ChannelDef[];
+    cooldown_minutes: number;
+    enabled: boolean;
+    description: string;
+}
+
 interface AlertRule {
     id: number;
     name: string;
@@ -45,7 +63,7 @@ interface AlertRule {
     severity: string;
     endpoint_id: number | null;
     endpoint?: { name: string } | null;
-    threshold: Record<string, unknown>;
+    threshold: AlertRuleThreshold;
     channels: ChannelDef[];
     cooldown_minutes: number;
     enabled: boolean;
@@ -72,25 +90,27 @@ const props = defineProps<Props>();
 
 const page = usePage<{ errors: Record<string, string> }>();
 
-const createForm = useForm({
+const initialForm: AlertRuleCreateForm = {
     name: '',
-    endpoint_id: null as number | null,
+    endpoint_id: null,
     type: props.rule_types[0]?.value ?? 'smsc_down',
     severity: props.severities[0]?.value ?? 'warning',
-    threshold: {} as Record<string, unknown>,
+    threshold: {},
     channels: [
         {
             type: 'mail',
             emails: [],
             emailList: '',
-        } as ChannelDef,
+        },
     ],
     cooldown_minutes: props.defaults.cooldown_minutes,
     enabled: true,
     description: '',
-});
+};
 
-function sevClass(s: string) {
+const createForm = useForm<AlertRuleCreateForm>(initialForm);
+
+function sevClass(s: string): string {
     switch (s) {
         case 'critical':
             return 'bg-rose-500/15 text-rose-700 dark:text-rose-300';
@@ -101,22 +121,24 @@ function sevClass(s: string) {
     }
 }
 
-function addChannel() {
+function addChannel(): void {
     createForm.channels.push({ type: 'mail', emails: [], emailList: '' });
 }
 
-function removeChannel(idx: number) {
+function removeChannel(idx: number): void {
     createForm.channels.splice(idx, 1);
 }
 
-function prepareAndSubmit() {
-    const normalized = createForm.channels.map((c) => {
+function prepareAndSubmit(): void {
+    const normalized = createForm.channels.map((c: ChannelDef) => {
         if (
             c.type === 'mail' &&
             typeof c.emailList === 'string' &&
             c.emailList !== ''
         ) {
-            c.emails = c.emailList.split(/[\s,;]+/).filter((s) => s !== '');
+            c.emails = c.emailList
+                .split(/[\s,;]+/)
+                .filter((s: string) => s !== '');
             delete c.emailList;
         }
         if (c.type === 'mail') {
@@ -134,13 +156,13 @@ function prepareAndSubmit() {
                 type: 'webhook',
                 url: c.url ?? '',
                 secret: c.secret ?? '',
-                headers: headers,
+                headers,
             };
         }
         return c;
     });
 
-    const threshold: Record<string, unknown> = { ...createForm.threshold };
+    const threshold: AlertRuleThreshold = { ...createForm.threshold };
     const type = String(createForm.type);
     if (type === 'queue_exceeded') {
         threshold.outbound_queue = Number(
@@ -163,7 +185,7 @@ function prepareAndSubmit() {
     }
 
     const submit = useForm({
-        ...createForm.transform(),
+        ...createForm.data(),
         channels: normalized,
         threshold,
     });
@@ -171,11 +193,11 @@ function prepareAndSubmit() {
     submit.post(alertRulesRoutes.store.url(), { preserveScroll: true });
 }
 
-function removeRule(r: AlertRule) {
+function removeRule(r: AlertRule): void {
     if (!confirm(`Delete rule "${r.name}"?`)) {
         return;
     }
-    const form = useForm({});
+    const form = useForm({ id: r.id });
     form.post(alertRulesRoutes.destroy.form(r.id).action, {
         preserveScroll: true,
     });

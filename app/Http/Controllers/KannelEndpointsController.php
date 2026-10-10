@@ -111,13 +111,24 @@ class KannelEndpointsController extends Controller
 
         $fetch = $result['fetch'] ?? null;
 
-        if (! ($fetch?->success ?? false)) {
-            $endpoint->markUnhealthy((string) ($fetch?->errorMessage ?? 'Unknown failure'));
+        if ($fetch === null) {
+            $endpoint->markUnhealthy('Unknown failure');
 
             return [
                 'success' => false,
-                'message' => $fetch?->errorMessage ?? 'Unknown failure',
-                'http_status' => $fetch?->status ?? 0,
+                'message' => 'Unknown failure',
+                'http_status' => 0,
+            ];
+        }
+
+        if (! $fetch->success) {
+            $message = $fetch->errorMessage ?? 'Unknown failure';
+            $endpoint->markUnhealthy($message);
+
+            return [
+                'success' => false,
+                'message' => $message,
+                'http_status' => $fetch->status,
             ];
         }
 
@@ -127,14 +138,14 @@ class KannelEndpointsController extends Controller
             'success' => true,
             'message' => sprintf(
                 'Connection OK in %dms: collected %d SMSCs, %d errors.',
-                (int) ($fetch?->durationMs ?? 0),
+                $fetch->durationMs,
                 count($result['smscs'] ?? []),
-                count($result['snapshot']?->errors ?? []),
+                count($result['snapshot']->errors ?? []),
             ),
-            'http_status' => $fetch?->status ?? 0,
-            'duration_ms' => (int) ($fetch?->durationMs ?? 0),
+            'http_status' => $fetch->status,
+            'duration_ms' => $fetch->durationMs,
             'format' => $result['format'] ?? null,
-            'uptime_seconds' => $result['snapshot']?->uptimeSeconds ?? null,
+            'uptime_seconds' => $result['snapshot']->uptimeSeconds ?? null,
         ];
     }
 }

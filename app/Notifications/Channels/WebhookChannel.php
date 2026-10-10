@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Channels;
 
+use App\Notifications\KannelAlertNotification;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Notifications\Notification;
@@ -14,25 +15,34 @@ class WebhookChannel
 
     /**
      * @param  mixed  $notifiable
+     * @return array{status:int, body:string}|null
      */
     public function send($notifiable, Notification $notification): ?array
     {
-        /** @var array{url:string, secret?:?string, headers?:array<string, string>, method?:string} $route */
-        $route = $notifiable->routeNotificationFor(self::class, $notification);
-
-        if (! is_array($route) || ! isset($route['url'])) {
+        if (! $notification instanceof KannelAlertNotification) {
             return null;
         }
 
+        /** @var mixed $routeRaw */
+        $routeRaw = $notifiable->routeNotificationFor(self::class, $notification);
+        if (! is_array($routeRaw) || ! isset($routeRaw['url']) || ! is_string($routeRaw['url']) || $routeRaw['url'] === '') {
+            return null;
+        }
+
+        /** @var array{url:string, secret?:?string, headers?:array<string, string>, method?:string} $route */
+        $route = $routeRaw;
+
         $body = $notification->toWebhook($notifiable);
         $method = strtoupper((string) ($route['method'] ?? 'POST'));
+        $routeHeaders = isset($route['headers']) && is_array($route['headers']) ? $route['headers'] : [];
         $headers = array_merge([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-        ], is_array($route['headers'] ?? null) ? $route['headers'] : []);
+        ], $routeHeaders);
 
-        $secret = isset($route['secret']) && is_string($route['secret']) ? $route['secret'] : null;
-        if ($secret !== null && $secret !== '') {
+        $secretRaw = $route['secret'] ?? null;
+        $secret = is_string($secretRaw) && $secretRaw !== '' ? $secretRaw : null;
+        if ($secret !== null) {
             $header = config('kannel.channels.webhook.hmac_header', 'X-Kannel-Signature');
             $algo = config('kannel.channels.webhook.hmac_algo', 'sha256');
             $payload = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

@@ -34,7 +34,10 @@ class ThroughputDropRule implements KannelAlertRuleStrategy
                 ->where('endpoint_id', $snapshot->endpoint_id)
                 ->whereNull('smsc_name')
                 ->whereBetween('bucket_hour', [$cutoff, $snapshot->polled_at])
-                ->avg('avg_mt_rate') ?? 0.0;
+                ->avg('avg_mt_rate');
+            if (! is_numeric($baselineMtRate)) {
+                $baselineMtRate = 0.0;
+            }
 
             $currentMtRate = (float) $snapshot->mt_rate;
             if ($baselineMtRate <= 0) {
